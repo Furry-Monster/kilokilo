@@ -155,13 +155,13 @@ void editorDrawRows(struct abuf *ab){
       char welcome[80];
       int welcomelen = snprintf(welcome, sizeof(welcome), "KiloKilo editor -- version %s",KILOKILO_VERSION);
       if(welcomelen>E.screencol)
-        welcomelen = E.screencol;
+        welcomelen = E.screencol; // Truncate if too long
       abAppend(ab, welcome, welcomelen);
     }else {
       abAppend(ab, "~", 1);
     }
 
-    abAppend(ab, "\x1b[K", 3);  // clear when draw new line,instead of repainting the whole window
+    abAppend(ab, "\x1b[K", 3);  // Clear when draw new line,instead of repainting the whole window
     if(y<E.screenrow-1){
       abAppend(ab, "\r\n", 2);
     }
@@ -172,6 +172,7 @@ void editorRefreshScreen(){
   struct abuf ab = ABUF_INIT;
 
   abAppend(&ab, "\x1b[?25l", 6); // hide cursor
+  // abAppend(&ab, "\x1b[2j", 4);            // don't need this line to clear window
   abAppend(&ab, "\x1b[H", 3);
 
   editorDrawRows(&ab);
@@ -194,7 +195,6 @@ void editorProcessKeypress(){
       break;
   }
 }
-
 
 
 
