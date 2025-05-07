@@ -1,0 +1,7 @@
+# ignore building files
+.o
+.s
+.i
+.out
+
+kilokilo
