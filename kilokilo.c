@@ -124,7 +124,7 @@ struct abuf {
 
 // default buffer initalizer
 #define ABUF_INIT                                                              \
-  { NULL, 0 }
+{ NULL, 0 }
 
 void abAppend(struct abuf *ab, const char *s, int len) {
   char *newBuf = realloc(ab->b, ab->len + len);
@@ -144,20 +144,28 @@ void editorDrawRows(struct abuf *ab) {
   int y;
   for (y = 0; y < E.screenrow; y++) {
     if (y == E.screenrow / 3) {
+      // print welcome message here
       char welcome[80];
       int welcomelen =
-          snprintf(welcome, sizeof(welcome), "KiloKilo editor -- version %s",
-                   KILOKILO_VERSION);
+        snprintf(welcome, sizeof(welcome), "KiloKilo editor -- version %s",
+                 KILOKILO_VERSION);
       if (welcomelen > E.screencol)
         welcomelen = E.screencol; // Truncate if too long
+      int padding = (E.screencol-welcomelen)/2;
+      if(padding){
+        abAppend(ab, "~", 1);
+        padding--;
+      }
+      while(padding--)
+        abAppend(ab, " ", 1);
       abAppend(ab, welcome, welcomelen);
     } else {
       abAppend(ab, "~", 1);
     }
 
     abAppend(
-        ab, "\x1b[K",
-        3); // Clear when draw new line,instead of repainting the whole window
+      ab, "\x1b[K",
+      3); // Clear when draw new line,instead of repainting the whole window
     if (y < E.screenrow - 1) {
       abAppend(ab, "\r\n", 2);
     }
@@ -185,18 +193,18 @@ void editorProcessKeypress() {
   char c = editorReadKey();
 
   switch (c) {
-  case CTRL_KEY('q'):
-    write(STDOUT_FILENO, "\x1b[2J", 4);
-    write(STDOUT_FILENO, "\x1b[H", 3);
-    exit(0);
-    break;
+    case CTRL_KEY('q'):
+      write(STDOUT_FILENO, "\x1b[2J", 4);
+      write(STDOUT_FILENO, "\x1b[H", 3);
+      exit(0);
+      break;
   }
 }
 
 /*  init & main  */
 
 void initEditor() {
-  if (getWindowSize(&E.screenrow, &E.screenrow) == -1)
+  if (getWindowSize(&E.screenrow, &E.screencol) == -1)
     die("getWindowSize");
 }
 

@@ -5,3 +5,6 @@
 .out
 
 kilokilo
+
+# ignore configs
+.vscode/
