@@ -298,7 +298,7 @@ void editorProcessKeypress() {
       E.cx = 0;
       break;
     case END_KEY:
-      E.cx = E.screenrow - 1;
+      E.cx = E.screencol - 1;
       break;
 
     case PAGE_DOWN:
