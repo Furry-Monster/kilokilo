@@ -13,6 +13,7 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <termios.h>
+#include <time.h>
 #include <unistd.h>
 
 /*  defines */
@@ -267,6 +268,12 @@ void editorScroll() {
   if (E.cy >= E.rowoff + E.screenrow) {
     E.rowoff = E.cy - E.screenrow + 1;
   }
+  if (E.cx < E.coloff) {
+    E.coloff = E.cx;
+  }
+  if (E.cx >= E.coloff + E.screencol) {
+    E.coloff = E.cx - E.screencol + 1;
+  }
 }
 
 void editorDrawRows(struct abuf *ab) {
@@ -296,10 +303,12 @@ void editorDrawRows(struct abuf *ab) {
       }
     } else {
       // print text from file.
-      int len = E.row[filerow].size;
+      int len = E.row[filerow].size - E.coloff;
+      if (len < 0)
+        len = 0;
       if (len > E.screencol)
         len = E.screencol;
-      abAppend(ab, E.row[filerow].chars, len);
+      abAppend(ab, &E.row[filerow].chars[E.coloff], len);
     }
 
     abAppend(
@@ -323,7 +332,8 @@ void editorRefreshScreen() {
   editorDrawRows(&ab);
 
   char buf[32];
-  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy - E.rowoff + 1, E.cx + 1);
+  snprintf(buf, sizeof(buf), "\x1b[%d;%dH", E.cy - E.rowoff + 1,
+           E.cx - E.coloff + 1);
   abAppend(&ab, buf, strlen(buf));
 
   abAppend(&ab, "\x1b[?25h", 6); // show cursor
@@ -333,14 +343,24 @@ void editorRefreshScreen() {
 }
 
 void editorMoveCursor(int key) {
+  erow *row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
+
   switch (key) {
   case ARROW_LEFT:
     if (E.cx != 0)
       E.cx--;
+    else if (E.cy > 0) {
+      E.cy--;
+      E.cx = E.row[E.cy].size;
+    }
     break;
   case ARROW_RIGHT:
-    if (E.cx != E.screencol - 1)
+    if (row && E.cx < row->size)
       E.cx++;
+    else if (row && E.cx == row->size) {
+      E.cy++;
+      E.cx = 0;
+    }
     break;
   case ARROW_UP:
     if (E.cy != 0)
@@ -351,6 +371,11 @@ void editorMoveCursor(int key) {
       E.cy++;
     break;
   }
+
+  row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
+  int rowlen = row ? row->size : 0;
+  if (E.cx > rowlen)
+    E.cx = rowlen;
 }
 
 void editorProcessKeypress() {
