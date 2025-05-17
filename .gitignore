@@ -4,7 +4,10 @@
 *.i
 *.out
 
+# ignore debug files
 kilokilo
+*.txt
+
 
 # ignore configs
 .vscode/
