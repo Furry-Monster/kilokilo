@@ -750,6 +750,12 @@ void editorSetStatusMessage(const char *fmt, ...) {
 
 /*  input  */
 
+/**
+ * @brief
+ *
+ * @param prompt
+ * @return char*
+ */
 char *editorPrompt(char *prompt) {
   size_t bufsize = 128;
   char *buf = malloc(bufsize);
