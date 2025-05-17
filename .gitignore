@@ -1,8 +1,8 @@
 # ignore building files
-.o
-.s
-.i
-.out
+*.o
+*.s
+*.i
+*.out
 
 kilokilo
 
