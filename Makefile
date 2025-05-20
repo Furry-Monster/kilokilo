@@ -1,4 +1,3 @@
-# Compiler and flags
 CC := gcc
 CFLAGS := -Wall -Wextra -pedantic -std=c99
 DEBUGFLAGS := -g
